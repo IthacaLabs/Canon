@@ -1,0 +1,29 @@
+Host Header Injection
+
+Type: Unauthenticated Remote attack
+
+We have identified that the "OCE Print Exec Workgroup Version 1.3.2" web interface is affected by Host Header attacks. HTTP host header can be manipulated and cause the application to behave in unexpected ways. Any changes made to the header would just cause the request to be sent to a completely different Domain/IP address. This is due to that the server implicitly trusts the Host header, and fails to validate or escape it properly, an attacker may be able to use this input to inject harmful payloads that manipulate server-side behavior.
+
+
+
+Below Evidence is provided:
+
+
+The "Host" header points to the attacker's domain
+The "X-Forwarded-Host" header points to the target's IP Address
+
+Malicious Request:
+GET /servlet/PEWGStartServlet HTTP/1.1
+Cookie: dghhjjukdfd7ijygfgfrty643434yu75ref
+Host: EvilhostZjZ19hqI.com
+X-Forwarded-Host: Target-IP
+
+
+Response:
+HTTP 1.1 302 Found
+Location: http://evilhostZjZ19hqI.com/servlet/PEWGServlet?pag=jpiCheck&cmd=JpiCheck&autoInstall=on
+
+
+Affected source code:
+<A HREF="http://evilhostZjZ19hqI.com/servlet/PEWGServlet?pag=jpiCheck&cmd=JpiCheck&autoInstall=on">http://evilhostZjZ19hqI.com/servlet/PEWGServlet?pag=jpiCheck&cmd=JpiCheck&autoInstall=on</A>
+

